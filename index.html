@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AVA - Fio Forte</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;transition:background-color .35s,border-color .35s,color .35s,box-shadow .35s}
+  :root{
+    --syne:'Syne',sans-serif;
+    --dm:'DM Sans',sans-serif;
+    --ink:#f0f0f0;
+    --ink2:#c0bcb8;
+    --ink3:#888;
+    --surface:#1a1a1a;
+    --surface2:#111111;
+    --surface3:#222222;
+    --accent:#e02020;
+    --accent2:#b81010;
+    --green:#1a9e5c;
+    --green-bg:#0d2e1e;
+    --amber:#c47f0a;
+    --amber-bg:#2a1e00;
+    --red:#e02020;
+    --red-bg:#2a0a0a;
+    --border:#2e2e2e;
+    --radius:10px;
+    --radius-lg:16px;
+  }
+  html,body{height:100%;background:#0d0d0d;font-family:var(--dm);color:var(--ink);transition:background .4s,color .4s}
+  h1,h2,h3,h4{font-family:var(--syne)}
+
+  /* AUTH */
+  #auth-screen{position:fixed;inset:0;background:#0d0d0d;z-index:1000;display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+  #auth-screen.hidden{opacity:0;pointer-events:none}
+  .auth-bg{position:absolute;inset:0;overflow:hidden}
+  .auth-bg::before{content:'';position:absolute;top:-30%;left:-20%;width:700px;height:700px;background:radial-gradient(circle,rgba(224,32,32,.12) 0%,transparent 70%);border-radius:50%}
+  .auth-bg::after{content:'';position:absolute;bottom:-20%;right:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(224,32,32,.07) 0%,transparent 70%);border-radius:50%}
+  .auth-card{position:relative;z-index:1;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.5);animation:slideUp .4s ease both}
+  @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .auth-logo{display:flex;align-items:center;gap:10px;font-family:var(--syne);font-weight:700;font-size:22px;margin-bottom:28px}
+  .auth-logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px rgba(224,32,32,.6)}
+  .auth-title{font-family:var(--syne);font-size:20px;font-weight:700;color:var(--ink);margin-bottom:6px}
+  .auth-sub{font-size:13px;color:var(--ink3);margin-bottom:28px;line-height:1.5}
+  .auth-tabs{display:flex;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:28px;gap:4px}
+  .auth-tab{flex:1;padding:9px;border:none;border-radius:7px;font-family:var(--syne);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;color:var(--ink3);background:transparent}
+  .auth-tab.active{background:var(--surface);color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+  .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+  .form-label{font-size:11px;font-weight:600;color:var(--ink3);font-family:var(--syne);text-transform:uppercase;letter-spacing:.06em}
+  .form-input{height:42px;border:1px solid var(--border);border-radius:9px;padding:0 14px;font-family:var(--dm);font-size:14px;color:var(--ink);background:var(--surface2);outline:none;transition:border .2s,box-shadow .2s}
+  .form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(224,32,32,.12)}
+  .form-input::placeholder{color:var(--ink3)}
+  .form-select{height:42px;border:1px solid var(--border);border-radius:9px;padding:0 14px;font-family:var(--dm);font-size:14px;color:var(--ink);background:var(--surface2);outline:none;cursor:pointer;transition:border .2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+  .form-select:focus{border-color:var(--accent)}
+  .input-icon-wrap{position:relative}
+  .input-icon-wrap .form-input{padding-left:40px}
+  .input-icon-wrap i{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--ink3)}
+  .btn-auth{width:100%;height:44px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:var(--syne);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;box-shadow:0 4px 16px rgba(224,32,32,.3)}
+  .btn-auth:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(224,32,32,.4)}
+  .btn-auth:disabled{opacity:.6;cursor:not-allowed;transform:none}
+  .auth-error{background:var(--red-bg);border:1px solid rgba(224,32,32,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;display:none;align-items:center;gap:8px}
+  .auth-error.show{display:flex}
+  .auth-success{background:var(--green-bg);border:1px solid rgba(26,158,92,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:16px;display:none;align-items:center;gap:8px}
+  .auth-success.show{display:flex}
+  .sector-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;margin-top:2px}
+
+  /* APP */
+  #app-screen{display:none;flex-direction:column;min-height:100vh}
+  #app-screen.visible{display:flex}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 24px;height:56px;position:sticky;top:0;z-index:100}
+  .logo{font-family:var(--syne);font-weight:700;font-size:18px;color:var(--ink);letter-spacing:-.5px;display:flex;align-items:center;gap:8px}
+  .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .topbar-nav{display:flex;gap:4px;margin-left:24px}
+  .topbar-nav button{font-family:var(--dm);font-size:13px;font-weight:400;padding:6px 14px;border-radius:6px;border:none;cursor:pointer;color:var(--ink2);background:transparent;transition:all .15s}
+  .topbar-nav button:hover{background:var(--surface2);color:var(--ink)}
+  .topbar-nav button.active{background:var(--surface3);color:var(--ink);font-weight:500}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-family:var(--syne);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
+  .badge-admin{background:var(--amber-bg);color:var(--amber);font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;font-family:var(--dm)}
+  .badge-setor{font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;font-family:var(--dm)}
+  .main{flex:1;display:flex}
+  .sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);padding:20px 12px;display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+  .sidebar-label{font-size:10px;font-weight:500;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;padding:8px 10px 4px;font-family:var(--syne)}
+  .sidebar-btn{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-family:var(--dm);font-size:13px;color:var(--ink2);width:100%;text-align:left;transition:all .15s}
+  .sidebar-btn i{font-size:16px;color:var(--ink3);flex-shrink:0}
+  .sidebar-btn:hover{background:var(--surface2);color:var(--ink)}
+  .sidebar-btn.active{background:var(--surface3);color:var(--ink);font-weight:500}
+  .sidebar-btn.active i{color:var(--accent)}
+  .sidebar-sep{height:1px;background:var(--border);margin:12px 0}
+  .content{flex:1;overflow-y:auto;padding:28px}
+  .page{display:none}
+  .page.active{display:block}
+  .page-title{font-family:var(--syne);font-size:22px;font-weight:700;color:var(--ink);margin-bottom:4px}
+  .page-sub{font-size:14px;color:var(--ink3);margin-bottom:24px}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px}
+  .stat-card .label{font-size:12px;color:var(--ink3);margin-bottom:8px;font-family:var(--syne);font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+  .stat-card .value{font-size:26px;font-weight:700;font-family:var(--syne);color:var(--ink);margin-bottom:4px}
+  .stat-card .change{font-size:12px;color:var(--green);font-weight:500}
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .section-title{font-family:var(--syne);font-size:16px;font-weight:600;color:var(--ink)}
+  .btn-link{border:none;background:none;cursor:pointer;font-size:13px;color:var(--accent);font-family:var(--dm);font-weight:500;padding:0}
+  .btn-link:hover{text-decoration:underline}
+  .courses-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+  .course-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:all .15s}
+  .course-card:hover{border-color:var(--accent)}
+  .course-thumb{height:120px;display:flex;align-items:center;justify-content:center;font-size:36px}
+  .course-info{padding:14px 16px}
+  .course-tag{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;margin-bottom:8px}
+  .tag-tech{background:#e8f0fe;color:#1a56db}
+  .tag-mgmt{background:var(--amber-bg);color:var(--amber)}
+  .tag-soft{background:var(--green-bg);color:var(--green)}
+  .tag-design{background:#f3e8ff;color:#7c3aed}
+  .course-name{font-family:var(--syne);font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px;line-height:1.3}
+  .course-meta{font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:8px}
+  .progress-bar{height:3px;background:var(--surface3);border-radius:2px;margin-top:10px}
+  .progress-fill{height:100%;background:var(--accent);border-radius:2px}
+  .activity-list{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+  .activity-item{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--border)}
+  .activity-item:last-child{border-bottom:none}
+  .act-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+  .act-icon.green{background:var(--green-bg);color:var(--green)}
+  .act-icon.blue{background:#e8f0fe;color:var(--accent)}
+  .act-icon.amber{background:var(--amber-bg);color:var(--amber)}
+  .act-text{flex:1;font-size:13px;color:var(--ink2)}
+  .act-text b{color:var(--ink);font-weight:500}
+  .act-time{font-size:12px;color:var(--ink3)}
+  .toolbar{display:flex;gap:10px;margin-bottom:20px;align-items:center}
+  .search-box{flex:1;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0 14px;height:38px}
+  .search-box i{font-size:16px;color:var(--ink3)}
+  .search-box input{border:none;outline:none;font-family:var(--dm);font-size:13px;color:var(--ink);background:transparent;flex:1}
+  .search-box input::placeholder{color:var(--ink3)}
+  .filter-select{height:38px;border:1px solid var(--border);border-radius:8px;padding:0 12px;font-family:var(--dm);font-size:13px;color:var(--ink2);background:var(--surface);cursor:pointer;outline:none}
+  .btn-primary{height:38px;padding:0 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--syne);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap}
+  .btn-primary:hover{background:var(--accent2)}
+  .btn-secondary{height:38px;padding:0 16px;background:var(--surface);color:var(--ink2);border:1px solid var(--border);border-radius:8px;font-family:var(--dm);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+  .btn-secondary:hover{background:var(--surface2)}
+  .course-list-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+  .table-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 80px;padding:10px 18px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;font-family:var(--syne)}
+  .table-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 80px;padding:14px 18px;border-bottom:1px solid var(--border);align-items:center;transition:background .1s;cursor:pointer}
+  .table-row:last-child{border-bottom:none}
+  .table-row:hover{background:var(--surface2)}
+  .table-row .course-title-cell{display:flex;align-items:center;gap:10px}
+  .thumb-sm{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .table-cell{font-size:13px;color:var(--ink2)}
+  .table-cell b{color:var(--ink);font-weight:500;font-size:13px;display:block;font-family:var(--syne)}
+  .table-cell span{font-size:12px;color:var(--ink3)}
+  .status-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px}
+  .pill-green{background:var(--green-bg);color:var(--green)}
+  .pill-amber{background:var(--amber-bg);color:var(--amber)}
+  .pill-gray{background:var(--surface3);color:var(--ink3)}
+  .row-actions{display:flex;gap:4px;justify-content:flex-end}
+  .icon-btn{width:30px;height:30px;border:1px solid var(--border);border-radius:6px;background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:14px;transition:all .15s}
+  .icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .member-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-align:center}
+  .member-avatar{width:52px;height:52px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-family:var(--syne);font-size:18px;font-weight:700;color:#fff}
+  .member-name{font-family:var(--syne);font-size:14px;font-weight:600;color:var(--ink);margin-bottom:2px}
+  .member-role{font-size:12px;color:var(--ink3);margin-bottom:14px}
+  .member-stats{display:flex;gap:14px;justify-content:center}
+  .m-stat{text-align:center}
+  .m-stat .n{font-family:var(--syne);font-size:18px;font-weight:700;color:var(--ink)}
+  .m-stat .l{font-size:11px;color:var(--ink3)}
+  .member-prog{margin-top:14px}
+  .member-prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--ink3);margin-bottom:4px}
+  .member-prog-bar{height:4px;background:var(--surface3);border-radius:2px}
+  .member-prog-fill{height:100%;border-radius:2px}
+  .report-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+  .report-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+  .report-card-title{font-family:var(--syne);font-size:14px;font-weight:600;color:var(--ink);margin-bottom:16px}
+  .bar-chart{display:flex;flex-direction:column;gap:10px}
+  .bar-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink2)}
+  .bar-label{width:80px;text-align:right;flex-shrink:0;color:var(--ink3);font-size:11px}
+  .bar-track{flex:1;height:20px;background:var(--surface3);border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:10px;color:#fff;font-weight:600}
+  .leaderboard{display:flex;flex-direction:column;gap:8px}
+  .lb-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:var(--surface2)}
+  .lb-rank{width:22px;font-family:var(--syne);font-size:13px;font-weight:700;color:var(--ink3);text-align:center;flex-shrink:0}
+  .lb-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--syne);font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+  .lb-name{flex:1;font-size:13px;font-weight:500;color:var(--ink)}
+  .lb-pts{font-size:13px;font-weight:600;color:var(--accent);font-family:var(--syne)}
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:640px;border:1px solid var(--border)}
+  .modal-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+  .modal-title{font-family:var(--syne);font-size:18px;font-weight:700;color:var(--ink)}
+  .modal-close{width:30px;height:30px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:18px}
+  .modal-body{padding:0 24px 24px;display:flex;flex-direction:column;gap:16px}
+  .modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+  /* QUIZ */
+  .quiz-prog-bar{height:4px;background:var(--surface3);border-radius:2px;margin-top:8px}
+  .quiz-prog-fill{height:100%;background:var(--accent);border-radius:2px}
+  .quiz-q{font-family:var(--syne);font-size:16px;font-weight:600;color:var(--ink);margin-bottom:20px;line-height:1.5}
+  .quiz-options{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+  .quiz-opt{display:flex;align-items:center;gap:12px;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;font-size:14px;color:var(--ink2)}
+  .quiz-opt:hover{border-color:var(--accent);color:var(--ink)}
+  .quiz-opt.correct{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+  .quiz-opt.wrong{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+  .opt-letter{width:26px;height:26px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;font-family:var(--syne);flex-shrink:0}
+  .quiz-actions{display:flex;justify-content:flex-end;gap:10px}
+  .quiz-result{text-align:center;padding:20px 0}
+  .quiz-score{font-family:var(--syne);font-size:48px;font-weight:700;color:var(--accent);margin-bottom:8px}
+  .quiz-score-label{font-size:14px;color:var(--ink3);margin-bottom:20px}
+  /* VIDEO */
+  .video-player{background:#111;border-radius:var(--radius-lg);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:20px}
+  .video-placeholder{text-align:center;color:#fff}
+  .play-btn{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;transition:all .2s}
+  .play-btn:hover{background:rgba(255,255,255,.25);transform:scale(1.05)}
+  .play-btn i{font-size:26px;color:#fff;margin-left:4px}
+  .video-title{font-family:var(--syne);font-size:16px;font-weight:600;color:#fff;opacity:.8}
+  .video-meta{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px}
+  .video-controls{position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(transparent,rgba(0,0,0,.6));display:flex;align-items:center;gap:10px}
+  .vc-bar{flex:1;height:4px;background:rgba(255,255,255,.2);border-radius:2px;cursor:pointer}
+  .vc-fill{height:100%;background:#fff;border-radius:2px;width:35%}
+  .vc-time{font-size:11px;color:rgba(255,255,255,.7)}
+  .vc-btn{background:none;border:none;cursor:pointer;color:#fff;padding:2px;font-size:18px;display:flex}
+  .module-list{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+  .module-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .module-header{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;transition:background .1s}
+  .module-header:hover{background:var(--surface2)}
+  .module-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .module-icon.video{background:#e8f0fe;color:var(--accent)}
+  .module-icon.quiz{background:var(--amber-bg);color:var(--amber)}
+  .module-icon.doc{background:var(--green-bg);color:var(--green)}
+  .module-name{font-size:13px;font-weight:500;color:var(--ink);flex:1}
+  .module-dur{font-size:12px;color:var(--ink3)}
+  .module-check{font-size:16px;color:var(--green)}
+  .setor-banner{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:20px;font-size:13px;color:var(--ink2)}
+  .setor-banner i{font-size:20px;color:var(--accent);flex-shrink:0}
+  .setor-banner b{color:var(--ink);font-family:var(--syne);font-size:13px}
+  /* LIGHT */
+  body.light{--ink:#1a1a1a;--ink2:#4a4a4a;--ink3:#888;--surface:#ffffff;--surface2:#f5f5f5;--surface3:#ebebeb;--border:#e0e0e0;--green-bg:#d4f5e2;--amber-bg:#fef3c7;--red-bg:#fee2e2;background:#f0f0f0 !important}
+  body.light #auth-screen{background:#f0f0f0}
+  body.light .auth-card{box-shadow:0 24px 64px rgba(0,0,0,.12)}
+  body.light .form-input,body.light .form-select{background:var(--surface2);color:var(--ink)}
+  body.light .tag-tech{background:#dbeafe;color:#1d4ed8}
+  .empty-state{text-align:center;padding:60px 20px;color:var(--ink3)}
+  .empty-state i{font-size:48px;margin-bottom:12px;display:block;opacity:.4}
+  .empty-state p{font-size:14px}
+  .btn-logout{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:transparent;cursor:pointer;font-family:var(--dm);font-size:12px;color:var(--ink3);transition:all .15s}
+  .btn-logout:hover{border-color:var(--red);color:var(--red)}
+  .setor-tec{background:#e8f0fe;color:#1a56db}
+  .setor-gestao{background:var(--amber-bg);color:var(--amber)}
+  .setor-design{background:#f3e8ff;color:#7c3aed}
+  .setor-soft{background:var(--green-bg);color:var(--green)}
+  .setor-financeiro{background:#fce7f3;color:#db2777}
+  .setor-ops{background:#ecfdf5;color:#059669}
+  /* Loading spinner */
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-bg"></div>
+  <div class="auth-card">
+    <div class="auth-logo"><span class="auth-logo-dot"></span>AVA — Fio Forte</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Entrar</button>
+      <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Cadastrar</button>
+    </div>
+    <!-- LOGIN -->
+    <div id="form-login">
+      <p class="auth-title">Bem-vindo de volta</p>
+      <p class="auth-sub">Acesse a plataforma de aprendizado da sua equipe.</p>
+      <div id="login-error" class="auth-error"><i class="ti ti-alert-circle"></i><span id="login-error-msg"></span></div>
+      <div id="login-success" class="auth-success"><i class="ti ti-check"></i><span>Login realizado! Carregando...</span></div>
+      <div class="form-group"><label class="form-label">E-mail</label>
+        <div class="input-icon-wrap"><i class="ti ti-mail"></i><input class="form-input" id="login-email" type="email" placeholder="seu@email.com"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Senha</label>
+        <div class="input-icon-wrap"><i class="ti ti-lock"></i><input class="form-input" id="login-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      </div>
+      <button class="btn-auth" id="btn-login" onclick="doLogin()"><i class="ti ti-login"></i> Entrar na plataforma</button>
+    </div>
+    <!-- REGISTER -->
+    <div id="form-register" style="display:none">
+      <p class="auth-title">Criar conta</p>
+      <p class="auth-sub">Preencha os dados para acessar os cursos do seu setor.</p>
+      <div id="reg-error" class="auth-error"><i class="ti ti-alert-circle"></i><span id="reg-error-msg"></span></div>
+      <div id="reg-success" class="auth-success"><i class="ti ti-check"></i><span>Conta criada! Você já pode fazer login.</span></div>
+      <div class="form-group"><label class="form-label">Nome completo</label>
+        <div class="input-icon-wrap"><i class="ti ti-user"></i><input class="form-input" id="reg-name" type="text" placeholder="Seu nome completo"></div>
+      </div>
+      <div class="form-group"><label class="form-label">E-mail corporativo</label>
+        <div class="input-icon-wrap"><i class="ti ti-mail"></i><input class="form-input" id="reg-email" type="email" placeholder="seu@fioforte.com"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Cargo / Função</label>
+        <div class="input-icon-wrap"><i class="ti ti-briefcase"></i><input class="form-input" id="reg-role" type="text" placeholder="Ex: Analista, Desenvolvedor..."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Setor</label>
+        <select class="form-select" id="reg-setor">
+          <option value="">Selecione seu setor...</option>
+          <option value="tecnologia">💻 Tecnologia</option>
+          <option value="gestao">📊 Gestão</option>
+          <option value="design">🎨 Design</option>
+          <option value="soft">🗣️ Soft Skills / RH</option>
+          <option value="financeiro">💰 Financeiro</option>
+          <option value="operacoes">⚙️ Operações</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Senha</label>
+        <div class="input-icon-wrap"><i class="ti ti-lock"></i><input class="form-input" id="reg-password" type="password" placeholder="Mínimo 6 caracteres"></div>
+      </div>
+      <button class="btn-auth" id="btn-register" onclick="doRegister()"><i class="ti ti-user-plus"></i> Criar minha conta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-screen">
+  <div class="topbar">
+    <div class="logo"><span class="logo-dot"></span>AVA — Fio Forte</div>
+    <div class="topbar-nav" id="topbar-nav">
+      <button class="active" onclick="switchTab('dashboard',this)">Início</button>
+      <button onclick="switchTab('courses',this)">Cursos</button>
+      <button id="nav-team" onclick="switchTab('team',this)">Equipe</button>
+      <button onclick="switchTab('reports',this)">Relatórios</button>
+    </div>
+    <div class="topbar-right">
+      <button onclick="toggleTheme()" title="Alternar tema" style="width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink2);font-size:17px" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink2)'"><i class="ti ti-sun" id="theme-icon"></i></button>
+      <span id="user-badge" class="badge-admin"></span>
+      <div id="user-avatar" class="avatar"></div>
+      <button class="btn-logout" onclick="doLogout()"><i class="ti ti-logout"></i>Sair</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="sidebar">
+      <span class="sidebar-label">Navegação</span>
+      <button class="sidebar-btn active" onclick="switchPage('dashboard')"><i class="ti ti-layout-dashboard"></i>Dashboard</button>
+      <button class="sidebar-btn" onclick="switchPage('courses')"><i class="ti ti-books"></i>Cursos</button>
+      <button class="sidebar-btn" onclick="switchPage('quizzes')"><i class="ti ti-question-mark"></i>Testes</button>
+      <button class="sidebar-btn" onclick="switchPage('team')"><i class="ti ti-users"></i>Equipe</button>
+      <div class="sidebar-sep"></div>
+      <span class="sidebar-label">Analytics</span>
+      <button class="sidebar-btn" onclick="switchPage('reports')"><i class="ti ti-chart-bar"></i>Relatórios</button>
+      <button class="sidebar-btn" onclick="switchPage('certificates')"><i class="ti ti-certificate"></i>Certificados</button>
+      <div class="sidebar-sep"></div>
+      <button class="sidebar-btn" onclick="switchPage('settings')"><i class="ti ti-settings"></i>Configurações</button>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <h1 class="page-title" id="dash-greeting">Olá 👋</h1>
+        <p class="page-sub" id="dash-sub">Acompanhe seus cursos e progresso.</p>
+        <div id="setor-banner-dash" class="setor-banner" style="display:none">
+          <i class="ti ti-books"></i>
+          <div>Você está vendo os cursos do setor <b id="setor-name-banner"></b>. Entre em contato com o administrador para solicitar acesso a outros setores.</div>
+        </div>
+        <div class="stats-grid" id="stats-grid"></div>
+        <div class="section-head">
+          <span class="section-title">Cursos disponíveis</span>
+          <button class="btn-link" onclick="switchPage('courses')">Ver todos</button>
+        </div>
+        <div class="courses-grid" id="dash-courses-grid"></div>
+        <div class="section-head"><span class="section-title">Atividade recente</span></div>
+        <div class="activity-list" id="activity-list">
+          <div class="activity-item"><div class="act-icon green"><i class="ti ti-check"></i></div><div class="act-text"><b>Maria Silva</b> concluiu "Python para Análise de Dados"</div><div class="act-time">há 23 min</div></div>
+          <div class="activity-item"><div class="act-icon blue"><i class="ti ti-player-play"></i></div><div class="act-text"><b>João Pereira</b> iniciou "Liderança & Gestão de Equipes"</div><div class="act-time">há 1h</div></div>
+          <div class="activity-item"><div class="act-icon amber"><i class="ti ti-question-mark"></i></div><div class="act-text"><b>Ana Costa</b> obteve 95% no teste de "UX Design"</div><div class="act-time">há 2h</div></div>
+        </div>
+      </div>
+
+      <!-- COURSES -->
+      <div class="page" id="page-courses">
+        <h1 class="page-title">Cursos</h1>
+        <p class="page-sub" id="courses-page-sub">Navegue pelos cursos disponíveis.</p>
+        <div id="setor-banner-courses" class="setor-banner" style="display:none">
+          <i class="ti ti-filter"></i>
+          <div>Exibindo apenas cursos do seu setor: <b id="setor-name-courses"></b>.</div>
+        </div>
+        <div class="toolbar">
+          <div class="search-box"><i class="ti ti-search"></i><input type="text" placeholder="Buscar cursos..." oninput="filterCourseTable(this.value)"></div>
+          <select class="filter-select" id="cat-filter" onchange="filterCourseTable()">
+            <option value="">Todas as categorias</option>
+            <option value="tecnologia">Tecnologia</option>
+            <option value="gestao">Gestão</option>
+            <option value="design">Design</option>
+            <option value="soft">Soft Skills</option>
+          </select>
+          <button id="btn-new-course" class="btn-primary" onclick="openModal('add-course')" style="display:none"><i class="ti ti-plus"></i> Novo curso</button>
+        </div>
+        <div class="course-list-table">
+          <div class="table-head"><div>Curso</div><div>Categoria</div><div>Aulas</div><div>Membros</div><div>Status</div><div></div></div>
+          <div id="course-table-body"></div>
+        </div>
+      </div>
+
+      <!-- QUIZZES -->
+      <div class="page" id="page-quizzes">
+        <h1 class="page-title">Testes</h1>
+        <p class="page-sub">Avaliações dos cursos da plataforma.</p>
+        <div class="toolbar">
+          <div class="search-box"><i class="ti ti-search"></i><input type="text" placeholder="Buscar testes..."></div>
+          <button id="btn-new-quiz" class="btn-primary" onclick="openModal('add-quiz')" style="display:none"><i class="ti ti-plus"></i> Novo teste</button>
+          <button class="btn-secondary" onclick="openModal('preview-quiz')"><i class="ti ti-eye"></i> Prévia</button>
+        </div>
+        <div class="course-list-table">
+          <div class="table-head"><div>Teste</div><div>Curso</div><div>Questões</div><div>Média</div><div>Status</div><div></div></div>
+          <div class="table-row"><div class="course-title-cell"><div class="thumb-sm" style="background:#fdf3dc"><i class="ti ti-question-mark" style="color:var(--amber);font-size:18px"></i></div><div class="table-cell"><b>Avaliação Final — Python</b><span>Obrigatório</span></div></div><div class="table-cell">Python p/ Análise</div><div class="table-cell">15 questões</div><div class="table-cell" style="color:var(--green);font-weight:500">84%</div><div class="table-cell"><span class="status-pill pill-green"><i class="ti ti-point-filled"></i>Ativo</span></div><div class="row-actions"><button class="icon-btn" onclick="openModal('preview-quiz')"><i class="ti ti-eye"></i></button></div></div>
+          <div class="table-row"><div class="course-title-cell"><div class="thumb-sm" style="background:#fdf3dc"><i class="ti ti-question-mark" style="color:var(--amber);font-size:18px"></i></div><div class="table-cell"><b>Quiz Módulo 1 — Liderança</b><span>Módulo inicial</span></div></div><div class="table-cell">Liderança & Gestão</div><div class="table-cell">10 questões</div><div class="table-cell" style="color:var(--green);font-weight:500">79%</div><div class="table-cell"><span class="status-pill pill-green"><i class="ti ti-point-filled"></i>Ativo</span></div><div class="row-actions"><button class="icon-btn" onclick="openModal('preview-quiz')"><i class="ti ti-eye"></i></button></div></div>
+        </div>
+      </div>
+
+      <!-- TEAM -->
+      <div class="page" id="page-team">
+        <h1 class="page-title">Equipe</h1>
+        <p class="page-sub">Progresso individual de cada membro.</p>
+        <div class="toolbar">
+          <div class="search-box"><i class="ti ti-search"></i><input type="text" placeholder="Buscar membros..." oninput="filterTeam(this.value)"></div>
+        </div>
+        <div class="team-grid" id="team-grid"></div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="page" id="page-reports">
+        <h1 class="page-title">Relatórios</h1>
+        <p class="page-sub">Métricas de engajamento e desempenho.</p>
+        <div class="report-grid">
+          <div class="report-card"><div class="report-card-title">Conclusões por categoria</div><div class="bar-chart"><div class="bar-row"><span class="bar-label">Tecnologia</span><div class="bar-track"><div class="bar-fill" style="width:82%;background:#1a5cff">82%</div></div></div><div class="bar-row"><span class="bar-label">Gestão</span><div class="bar-track"><div class="bar-fill" style="width:68%;background:#1a9e5c">68%</div></div></div><div class="bar-row"><span class="bar-label">Design</span><div class="bar-track"><div class="bar-fill" style="width:55%;background:#7c3aed">55%</div></div></div><div class="bar-row"><span class="bar-label">Soft Skills</span><div class="bar-track"><div class="bar-fill" style="width:40%;background:#c47f0a">40%</div></div></div></div></div>
+          <div class="report-card"><div class="report-card-title">Ranking da equipe</div><div class="leaderboard" id="leaderboard-list"><div class="lb-row"><span class="lb-rank">🥇</span><div class="lb-avatar" style="background:#7c3aed">AC</div><span class="lb-name">Ana Costa</span><span class="lb-pts">2.840 pts</span></div></div></div>
+        </div>
+      </div>
+
+      <!-- CERTIFICATES -->
+      <div class="page" id="page-certificates">
+        <h1 class="page-title">Certificados</h1>
+        <p class="page-sub">Gerencie e emita certificados.</p>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:40px;text-align:center">
+          <i class="ti ti-certificate" style="font-size:48px;color:var(--amber);display:block;margin-bottom:12px"></i>
+          <p style="font-family:var(--syne);font-size:16px;font-weight:600;margin-bottom:8px">15 certificados emitidos</p>
+          <p style="font-size:13px;color:var(--ink3);margin-bottom:20px">Certificados automáticos ao concluir cursos</p>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <h1 class="page-title">Configurações</h1>
+        <p class="page-sub">Preferências da plataforma.</p>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div id="settings-members-section" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-family:var(--syne);font-size:14px;font-weight:600;margin-bottom:4px">Membros da equipe</div>
+                <div style="font-size:13px;color:var(--ink3)">Visualize e remova membros cadastrados na plataforma.</div>
+              </div>
+              <button class="btn-primary" onclick="openModal('manage-members')"><i class="ti ti-users-group"></i> Gerenciar membros</button>
+            </div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+            <div style="font-family:var(--syne);font-size:14px;font-weight:600;margin-bottom:16px">Notificações</div>
+            <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;color:var(--ink2)">
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" checked> Notificar ao concluir curso</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" checked> Notificar ao obter certificado</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox"> Lembretes semanais de progresso</label>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end"><button class="btn-primary">Salvar configurações</button></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD COURSE -->
+<div class="modal-overlay" id="modal-add-course">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Adicionar novo curso</span><button class="modal-close" onclick="closeModal('add-course')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Título do curso</label><input class="form-input" id="nc-name" placeholder="Ex: Python para Análise de Dados"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="form-group"><label class="form-label">Categoria</label>
+          <select class="form-select" id="nc-cat">
+            <option value="tecnologia">Tecnologia</option><option value="gestao">Gestão</option><option value="design">Design</option><option value="soft">Soft Skills</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Setor</label>
+          <select class="form-select" id="nc-setor">
+            <option value="tecnologia">Tecnologia</option><option value="gestao">Gestão</option><option value="design">Design</option><option value="soft">Soft Skills / RH</option><option value="financeiro">Financeiro</option><option value="operacoes">Operações</option>
+          </select>
+        </div>
+      </div>
+      <div id="nc-error" class="auth-error"><i class="ti ti-alert-circle"></i><span id="nc-error-msg"></span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('add-course')">Cancelar</button>
+      <button class="btn-primary" onclick="createCourse()"><i class="ti ti-check"></i> Criar curso</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD QUIZ -->
+<div class="modal-overlay" id="modal-add-quiz">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Criar novo teste</span><button class="modal-close" onclick="closeModal('add-quiz')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Título do teste</label><input class="form-input" placeholder="Ex: Avaliação Final"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('add-quiz')">Cancelar</button>
+      <button class="btn-primary" onclick="closeModal('add-quiz')"><i class="ti ti-check"></i> Salvar teste</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PREVIEW QUIZ -->
+<div class="modal-overlay" id="modal-preview-quiz">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header"><span class="modal-title">Prévia do teste</span><button class="modal-close" onclick="closeModal('preview-quiz')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:13px;font-weight:500;color:var(--ink)">Avaliação Final — Python</span>
+          <span style="font-size:12px;color:var(--ink3)" id="q-counter">Questão 1 de 3</span>
+        </div>
+        <div class="quiz-prog-bar"><div class="quiz-prog-fill" id="q-progress" style="width:33%"></div></div>
+        <div id="quiz-area" style="margin-top:20px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: COURSE VIEW -->
+<div class="modal-overlay" id="modal-course-view">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header"><span class="modal-title" id="cv-title">Curso</span><button class="modal-close" onclick="closeModal('course-view')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div class="video-player">
+        <div class="video-placeholder">
+          <div class="play-btn"><i class="ti ti-player-play"></i></div>
+          <div class="video-title" id="cv-video-title">Módulo 1 — Introdução</div>
+          <div class="video-meta" id="cv-video-meta">Aula 1</div>
+        </div>
+        <div class="video-controls">
+          <button class="vc-btn"><i class="ti ti-player-play"></i></button>
+          <div class="vc-bar"><div class="vc-fill"></div></div>
+          <span class="vc-time">04:12 / 12:00</span>
+          <button class="vc-btn"><i class="ti ti-volume"></i></button>
+        </div>
+      </div>
+      <div style="font-family:var(--syne);font-size:14px;font-weight:600;margin-bottom:10px">Conteúdo do curso</div>
+      <div class="module-list">
+        <div class="module-item"><div class="module-header"><div class="module-icon video"><i class="ti ti-player-play"></i></div><span class="module-name">1. Introdução</span><span class="module-dur">12 min</span><i class="ti ti-circle-check module-check"></i></div></div>
+        <div class="module-item"><div class="module-header"><div class="module-icon quiz"><i class="ti ti-question-mark"></i></div><span class="module-name">Quiz — Módulo 1</span><span class="module-dur">10 perguntas</span><i class="ti ti-clock" style="font-size:16px;color:var(--ink3)"></i></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MANAGE MEMBERS -->
+<div class="modal-overlay" id="modal-manage-members">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="ti ti-users-group" style="margin-right:8px;color:var(--accent)"></i>Gerenciar membros</span>
+      <button class="modal-close" onclick="closeModal('manage-members')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" style="gap:0;padding-bottom:0">
+      <div id="manage-members-list" style="display:flex;flex-direction:column;gap:0;max-height:460px;overflow-y:auto"></div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('manage-members')">Fechar</button></div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIRM DELETE MEMBER -->
+<div class="modal-overlay" id="modal-confirm-delete" style="z-index:300">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <span class="modal-title" style="color:var(--red)"><i class="ti ti-alert-triangle" style="margin-right:8px"></i>Excluir membro</span>
+      <button class="modal-close" onclick="closeModal('confirm-delete')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--ink2);line-height:1.6">Tem certeza que deseja excluir <b id="delete-member-name" style="color:var(--ink)"></b>? Esta ação não pode ser desfeita.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('confirm-delete')">Cancelar</button>
+      <button class="btn-primary" style="background:var(--red)" onclick="confirmDeleteMember()"><i class="ti ti-trash"></i> Excluir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+//  AVA Fio Forte — Frontend com API REST
+// =====================================================================
+
+const SETORES_LABEL = {tecnologia:'💻 Tecnologia',gestao:'📊 Gestão',design:'🎨 Design',soft:'🗣️ Soft Skills / RH',financeiro:'💰 Financeiro',operacoes:'⚙️ Operações'};
+const SETOR_CSS    = {tecnologia:'setor-tec',gestao:'setor-gestao',design:'setor-design',soft:'setor-soft',financeiro:'setor-financeiro',operacoes:'setor-ops'};
+const CAT_LABEL    = {tecnologia:'Tecnologia',gestao:'Gestão',design:'Design',soft:'Soft Skills'};
+const CAT_TAG      = {tecnologia:'tag-tech',gestao:'tag-mgmt',design:'tag-design',soft:'tag-soft'};
+
+let currentUser  = null;
+let allCourses   = [];
+let allMembers   = [];
+let memberToDelete = null;
+
+// ─── API helper ──────────────────────────────────────────────────────────────
+async function api(method, path, body) {
+  const opts = { method, headers: {'Content-Type':'application/json'}, credentials:'same-origin' };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch('/api' + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Erro desconhecido');
+  return data;
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+function switchAuthTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-register').classList.toggle('active', tab==='register');
+  document.getElementById('form-login').style.display   = tab==='login' ? '' : 'none';
+  document.getElementById('form-register').style.display = tab==='register' ? '' : 'none';
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('btn-login');
+  document.getElementById('login-error').classList.remove('show');
+  document.getElementById('login-success').classList.remove('show');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Entrando...';
+  try {
+    const user = await api('POST', '/auth/login', { email, password });
+    currentUser = user;
+    document.getElementById('login-success').classList.add('show');
+    setTimeout(() => enterApp(), 800);
+  } catch(err) {
+    document.getElementById('login-error-msg').textContent = err.message;
+    document.getElementById('login-error').classList.add('show');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-login"></i> Entrar na plataforma';
+  }
+}
+
+async function doRegister() {
+  const name     = document.getElementById('reg-name').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const role     = document.getElementById('reg-role').value.trim();
+  const setor    = document.getElementById('reg-setor').value;
+  const password = document.getElementById('reg-password').value;
+  const btn      = document.getElementById('btn-register');
+  document.getElementById('reg-error').classList.remove('show');
+  document.getElementById('reg-success').classList.remove('show');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Criando...';
+  try {
+    await api('POST', '/auth/register', { name, email, password, role, setor });
+    document.getElementById('reg-success').classList.add('show');
+    setTimeout(() => {
+      switchAuthTab('login');
+      document.getElementById('login-email').value = email;
+    }, 1800);
+  } catch(err) {
+    document.getElementById('reg-error-msg').textContent = err.message;
+    document.getElementById('reg-error').classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-user-plus"></i> Criar minha conta';
+  }
+}
+
+async function doLogout() {
+  await api('POST', '/auth/logout');
+  currentUser = null; allCourses = []; allMembers = [];
+  document.getElementById('app-screen').classList.remove('visible');
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('auth-screen').classList.remove('hidden');
+  document.getElementById('login-success').classList.remove('show');
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+}
+
+// ─── ENTER APP ───────────────────────────────────────────────────────────────
+async function enterApp() {
+  document.getElementById('auth-screen').classList.add('hidden');
+  setTimeout(() => {
+    document.getElementById('app-screen').style.display = 'flex';
+    document.getElementById('app-screen').classList.add('visible');
+  }, 400);
+
+  setupUserUI();
+  await Promise.all([loadCourses(), currentUser.isAdmin ? loadMembers() : Promise.resolve()]);
+  renderDashboard();
+  renderCourseTable();
+  if (currentUser.isAdmin) renderTeamGrid();
+  switchPage('dashboard');
+}
+
+function setupUserUI() {
+  const u = currentUser;
+  const initials = u.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+  document.getElementById('user-avatar').textContent = initials;
+  document.getElementById('user-avatar').style.background = u.color || 'var(--accent)';
+  document.getElementById('dash-greeting').textContent = `Olá, ${u.name.split(' ')[0]} 👋`;
+
+  const badge = document.getElementById('user-badge');
+  if (u.isAdmin) {
+    badge.className = 'badge-admin';
+    badge.innerHTML = '<i class="ti ti-shield-check"></i> Admin';
+    document.getElementById('dash-sub').textContent = 'Acompanhe o progresso da sua equipe em tempo real.';
+    document.getElementById('btn-new-course').style.display = 'flex';
+    document.getElementById('btn-new-quiz').style.display = 'flex';
+    document.getElementById('settings-members-section').style.display = 'flex';
+    document.getElementById('setor-banner-dash').style.display = 'none';
+    document.getElementById('setor-banner-courses').style.display = 'none';
+  } else {
+    const setorLabel = SETORES_LABEL[u.setor] || u.setor;
+    badge.className = `badge-setor ${SETOR_CSS[u.setor]||''}`;
+    badge.textContent = setorLabel;
+    document.getElementById('dash-sub').textContent = `Seus cursos do setor ${setorLabel}.`;
+    document.getElementById('btn-new-course').style.display = 'none';
+    document.getElementById('btn-new-quiz').style.display = 'none';
+    document.getElementById('settings-members-section').style.display = 'none';
+    document.getElementById('setor-banner-dash').style.display = 'flex';
+    document.getElementById('setor-name-banner').textContent = setorLabel;
+    document.getElementById('setor-banner-courses').style.display = 'flex';
+    document.getElementById('setor-name-courses').textContent = setorLabel;
+  }
+}
+
+// ─── COURSES ──────────────────────────────────────────────────────────────────
+async function loadCourses() {
+  try { allCourses = await api('GET', '/courses'); }
+  catch(e) { console.error('Erro ao carregar cursos:', e); }
+}
+
+function renderDashboard() {
+  const statsGrid = document.getElementById('stats-grid');
+  if (currentUser.isAdmin) {
+    api('GET', '/stats').then(s => {
+      statsGrid.innerHTML = `
+        <div class="stat-card"><div class="label"><i class="ti ti-books"></i> Cursos ativos</div><div class="value">${s.activeCourses}</div><div class="change"><i class="ti ti-arrow-up"></i> Plataforma</div></div>
+        <div class="stat-card"><div class="label"><i class="ti ti-users"></i> Membros</div><div class="value">${s.members}</div><div class="change"><i class="ti ti-arrow-up"></i> Cadastrados</div></div>
+        <div class="stat-card"><div class="label"><i class="ti ti-check"></i> Conclusões</div><div class="value">${s.completions}</div><div class="change"><i class="ti ti-arrow-up"></i> Total</div></div>
+        <div class="stat-card"><div class="label"><i class="ti ti-star"></i> Progresso médio</div><div class="value">${s.avgScore}%</div><div class="change"><i class="ti ti-arrow-up"></i> Todos os cursos</div></div>
+      `;
+    });
+  } else {
+    const avgProg = allCourses.length ? Math.round(allCourses.reduce((a,c)=>a+(c.prog||0),0)/allCourses.length) : 0;
+    statsGrid.innerHTML = `
+      <div class="stat-card"><div class="label"><i class="ti ti-books"></i> Meus cursos</div><div class="value">${allCourses.length}</div><div class="change">Disponíveis no seu setor</div></div>
+      <div class="stat-card"><div class="label"><i class="ti ti-check"></i> Em andamento</div><div class="value">${allCourses.filter(c=>c.prog>0&&c.prog<100).length}</div><div class="change">Cursos iniciados</div></div>
+      <div class="stat-card"><div class="label"><i class="ti ti-trophy"></i> Concluídos</div><div class="value">${allCourses.filter(c=>c.prog===100).length}</div><div class="change"><i class="ti ti-certificate"></i> Com certificado</div></div>
+      <div class="stat-card"><div class="label"><i class="ti ti-chart-line"></i> Progresso médio</div><div class="value">${avgProg}%</div><div class="change"><i class="ti ti-arrow-up"></i> Seu desempenho</div></div>
+    `;
+  }
+  const featured = allCourses.filter(c=>c.status==='ativo').slice(0,3);
+  document.getElementById('dash-courses-grid').innerHTML = featured.map(c=>`
+    <div class="course-card" onclick="openCourseView(${c.id})">
+      <div class="course-thumb" style="background:${c.bg}">${c.emoji}</div>
+      <div class="course-info">
+        <span class="course-tag ${c.tag}">${c.cat_label}</span>
+        <div class="course-name">${c.name}</div>
+        <div class="course-meta"><i class="ti ti-player-play"></i> ${c.aulas} aulas &nbsp;·&nbsp; <i class="ti ti-clock"></i> ${c.horas}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${c.prog||0}%"></div></div>
+      </div>
+    </div>
+  `).join('') || '<div class="empty-state"><i class="ti ti-books"></i><p>Nenhum curso disponível.</p></div>';
+}
+
+function renderCourseTable(search='', catFilter='') {
+  let courses = [...allCourses];
+  if (search)     courses = courses.filter(c=>c.name.toLowerCase().includes(search.toLowerCase()));
+  if (catFilter)  courses = courses.filter(c=>c.cat===catFilter);
+  const isAdmin = currentUser && currentUser.isAdmin;
+  const body = document.getElementById('course-table-body');
+  if (!courses.length) { body.innerHTML = '<div class="empty-state" style="padding:40px"><i class="ti ti-search"></i><p>Nenhum curso encontrado.</p></div>'; return; }
+  body.innerHTML = courses.map(c=>`
+    <div class="table-row" onclick="openCourseView(${c.id})">
+      <div class="course-title-cell">
+        <div class="thumb-sm" style="background:${c.bg}">${c.emoji}</div>
+        <div class="table-cell"><b>${c.name}</b><span>${c.status==='ativo'?'Ativo':'Em revisão'}</span></div>
+      </div>
+      <div class="table-cell"><span class="course-tag ${c.tag}">${c.cat_label}</span></div>
+      <div class="table-cell">${c.aulas} aulas</div>
+      <div class="table-cell">${c.membros||0} membros</div>
+      <div class="table-cell"><span class="status-pill ${c.status==='ativo'?'pill-green':'pill-amber'}"><i class="ti ti-point-filled"></i>${c.status==='ativo'?'Ativo':'Rascunho'}</span></div>
+      <div class="row-actions">
+        ${isAdmin
+          ? `<button class="icon-btn" onclick="event.stopPropagation();openModal('add-course')"><i class="ti ti-edit"></i></button>
+             <button class="icon-btn" onclick="event.stopPropagation();deleteCourse(${c.id})"><i class="ti ti-trash"></i></button>`
+          : `<button class="icon-btn" onclick="event.stopPropagation();openCourseView(${c.id})"><i class="ti ti-eye"></i></button>`}
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterCourseTable(searchVal) {
+  const search = searchVal !== undefined ? searchVal : '';
+  const cat = document.getElementById('cat-filter').value;
+  renderCourseTable(search, cat);
+}
+
+async function createCourse() {
+  const name  = document.getElementById('nc-name').value.trim();
+  const cat   = document.getElementById('nc-cat').value;
+  const setor = document.getElementById('nc-setor').value;
+  document.getElementById('nc-error').classList.remove('show');
+  if (!name) { document.getElementById('nc-error-msg').textContent='Informe o título.'; document.getElementById('nc-error').classList.add('show'); return; }
+  try {
+    const catLabel = CAT_LABEL[cat] || cat;
+    const tag      = CAT_TAG[cat]   || 'tag-tech';
+    await api('POST', '/courses', { name, cat, cat_label: catLabel, tag, setor, aulas:0, horas:'0h', status:'ativo' });
+    await loadCourses();
+    renderCourseTable();
+    closeModal('add-course');
+    document.getElementById('nc-name').value = '';
+  } catch(err) {
+    document.getElementById('nc-error-msg').textContent = err.message;
+    document.getElementById('nc-error').classList.add('show');
+  }
+}
+
+async function deleteCourse(id) {
+  if (!confirm('Excluir este curso?')) return;
+  try {
+    await api('DELETE', `/courses/${id}`);
+    await loadCourses();
+    renderCourseTable();
+    renderDashboard();
+  } catch(err) { alert('Erro: ' + err.message); }
+}
+
+function openCourseView(id) {
+  const c = allCourses.find(x=>x.id===id);
+  if (c) {
+    document.getElementById('cv-title').textContent = c.name;
+    document.getElementById('cv-video-title').textContent = `Módulo 1 — ${c.name}`;
+    document.getElementById('cv-video-meta').textContent  = `Aula 1 de ${c.aulas} · ${c.horas}`;
+  }
+  openModal('course-view');
+}
+
+// ─── MEMBERS ──────────────────────────────────────────────────────────────────
+async function loadMembers() {
+  try { allMembers = await api('GET', '/users'); }
+  catch(e) { console.error('Erro ao carregar membros:', e); }
+}
+
+function renderTeamGrid(filter='') {
+  const grid = document.getElementById('team-grid');
+  let members = allMembers;
+  if (filter) members = members.filter(m=>m.name.toLowerCase().includes(filter.toLowerCase()));
+  if (!members.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><i class="ti ti-users"></i><p>Nenhum membro encontrado.</p></div>';
+    return;
+  }
+  grid.innerHTML = members.map(m => {
+    const initials = m.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+    return `
+      <div class="member-card">
+        <div class="member-avatar" style="background:${m.color||'#6366f1'}">${initials}</div>
+        <div class="member-name">${m.name}</div>
+        <div class="member-role">${m.role}</div>
+        <div class="member-stats">
+          <div class="m-stat"><div class="n">${m.cursos||0}</div><div class="l">Cursos</div></div>
+          <div class="m-stat"><div class="n">${m.media||0}%</div><div class="l">Média</div></div>
+          <div class="m-stat"><div class="n">${m.prog||0}%</div><div class="l">Progresso</div></div>
+        </div>
+        <div class="member-prog">
+          <div class="member-prog-label"><span>Progresso geral</span><span>${m.prog||0}%</span></div>
+          <div class="member-prog-bar"><div class="member-prog-fill" style="width:${m.prog||0}%;background:${m.color||'#6366f1'}"></div></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function filterTeam(val) { renderTeamGrid(val); }
+
+async function renderManageMembers() {
+  if (!allMembers.length) await loadMembers();
+  const list = document.getElementById('manage-members-list');
+  if (!allMembers.length) {
+    list.innerHTML = '<div class="empty-state" style="padding:40px"><i class="ti ti-users"></i><p>Nenhum membro cadastrado.</p></div>';
+    return;
+  }
+  list.innerHTML = allMembers.map((m,i) => {
+    const initials = m.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+    return `
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:${i<allMembers.length-1?'1px solid var(--border)':'none'}">
+        <div style="width:40px;height:40px;border-radius:50%;background:${m.color||'#6366f1'};color:#fff;font-family:var(--syne);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${initials}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--syne);font-size:14px;font-weight:600;color:var(--ink)">${m.name}</div>
+          <div style="font-size:12px;color:var(--ink3)">${m.role} · ${SETORES_LABEL[m.setor]||m.setor}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px;flex-shrink:0">
+          <div style="text-align:center"><div style="font-family:var(--syne);font-size:15px;font-weight:700;color:var(--ink)">${m.cursos||0}</div><div style="font-size:10px;color:var(--ink3)">Cursos</div></div>
+          <div style="text-align:center"><div style="font-family:var(--syne);font-size:15px;font-weight:700;color:var(--green)">${m.media||0}%</div><div style="font-size:10px;color:var(--ink3)">Média</div></div>
+          <div style="text-align:center"><div style="font-family:var(--syne);font-size:15px;font-weight:700;color:var(--ink)">${m.prog||0}%</div><div style="font-size:10px;color:var(--ink3)">Progresso</div></div>
+          <button class="icon-btn" title="Excluir membro" onclick="askDeleteMember(${m.id},'${m.name.replace(/'/g,"\\'")}')">
+            <i class="ti ti-trash" style="color:var(--red)"></i>
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function askDeleteMember(id, name) {
+  memberToDelete = id;
+  document.getElementById('delete-member-name').textContent = name;
+  openModal('confirm-delete');
+}
+
+async function confirmDeleteMember() {
+  if (!memberToDelete) return;
+  try {
+    await api('DELETE', `/users/${memberToDelete}`);
+    allMembers = allMembers.filter(m=>m.id !== memberToDelete);
+    memberToDelete = null;
+    closeModal('confirm-delete');
+    renderManageMembers();
+    renderTeamGrid();
+  } catch(err) { alert('Erro: ' + err.message); }
+}
+
+// ─── NAV ──────────────────────────────────────────────────────────────────────
+function switchPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const t = document.getElementById('page-'+name);
+  if (t) t.classList.add('active');
+  document.querySelectorAll('.sidebar-btn').forEach(b=>{
+    b.classList.toggle('active', b.textContent.trim().toLowerCase().startsWith(name.substring(0,4).toLowerCase()));
+  });
+  if (name==='courses') renderCourseTable();
+  if (name==='team' && currentUser?.isAdmin) renderTeamGrid();
+}
+
+function switchTab(name, el) {
+  document.querySelectorAll('.topbar-nav button').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const map = {dashboard:'dashboard',cursos:'courses',equipe:'team',relatórios:'reports'};
+  switchPage(map[name]||name);
+}
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('theme-icon').className = isLight ? 'ti ti-moon' : 'ti ti-sun';
+}
+
+// ─── MODALS ───────────────────────────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById('modal-'+id).classList.add('open');
+  if (id==='preview-quiz')    { curQ=0; score=0; renderQuiz(); }
+  if (id==='manage-members')  { renderManageMembers(); }
+}
+function closeModal(id) { document.getElementById('modal-'+id).classList.remove('open'); }
+
+// ─── QUIZ ─────────────────────────────────────────────────────────────────────
+const quizData=[
+  {q:"O que é uma lista em Python?",opts:["Uma função built-in","Uma coleção ordenada e mutável","Um tipo de dicionário","Uma função de loop"],ans:1},
+  {q:"Qual método adiciona um elemento ao final de uma lista?",opts:[".add()","insert()","append()","push()"],ans:2},
+  {q:"Como se acessa o primeiro elemento de uma lista 'dados'?",opts:["dados[1]","dados[0]","dados.first()","dados.get(0)"],ans:1}
+];
+let curQ=0,selected=null,answered=false,score=0;
+function renderQuiz(){
+  const area=document.getElementById('quiz-area');
+  if(curQ>=quizData.length){
+    const pct=Math.round(score/quizData.length*100);
+    area.innerHTML=`<div class="quiz-result"><div class="quiz-score">${pct}%</div><div class="quiz-score-label">${score} de ${quizData.length} questões corretas</div><button class="btn-primary" style="margin:0 auto" onclick="resetQuiz()"><i class="ti ti-refresh"></i> Refazer</button></div>`;
+    return;
+  }
+  const d=quizData[curQ];
+  document.getElementById('q-counter').textContent=`Questão ${curQ+1} de ${quizData.length}`;
+  document.getElementById('q-progress').style.width=`${(curQ+1)/quizData.length*100}%`;
+  area.innerHTML=`<div class="quiz-q">${d.q}</div><div class="quiz-options">${d.opts.map((o,i)=>`<div class="quiz-opt" onclick="selectOpt(${i})"><span class="opt-letter">${'ABCD'[i]}</span>${o}</div>`).join('')}</div><div class="quiz-actions"><button class="btn-secondary" onclick="closeModal('preview-quiz')">Sair</button><button class="btn-primary" id="next-btn" onclick="nextQ()" style="opacity:.4;pointer-events:none"><i class="ti ti-arrow-right"></i> Próxima</button></div>`;
+  selected=null;answered=false;
+}
+function selectOpt(i){
+  if(answered)return;selected=i;answered=true;
+  const d=quizData[curQ];
+  document.querySelectorAll('.quiz-opt').forEach((el,j)=>{
+    if(j===d.ans)el.classList.add('correct');
+    else if(j===i&&i!==d.ans)el.classList.add('wrong');
+  });
+  if(i===d.ans)score++;
+  const btn=document.getElementById('next-btn');
+  btn.style.opacity='1';btn.style.pointerEvents='auto';
+  btn.innerHTML=`<i class="ti ti-arrow-right"></i> ${curQ===quizData.length-1?'Ver resultado':'Próxima'}`;
+}
+function nextQ(){if(!answered)return;curQ++;renderQuiz()}
+function resetQuiz(){curQ=0;score=0;selected=null;answered=false;renderQuiz()}
+
+// ─── INIT — verifica sessão ao carregar a página ───────────────────────────────
+(async function init() {
+  try {
+    currentUser = await api('GET', '/auth/me');
+    await enterApp();
+  } catch(_) {
+    // não autenticado — mostra tela de login normalmente
+  }
+})();
+</script>
+</body>
+</html>
