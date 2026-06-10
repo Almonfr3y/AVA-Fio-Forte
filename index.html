@@ -592,6 +592,15 @@
 // =====================================================================
 //  AVA Fio Forte — Frontend com API REST
 // =====================================================================
+ 
+// 1. ISSO DEVE FICAR NO TOPO DO <SCRIPT>, ANTES DE TODAS AS OUTRAS FUNÇÕES
+const SUPABASE_URL = "https://eysmlykmqtntbegekdpq.supabase.co"; // Substitua com a sua URL real
+const SUPABASE_ANON_KEY = "eysmlykmqtntbegekdpq";       // Substitua com a sua chave real
+
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Só depois disso vêm as suas variáveis antigas (users, coursesData, etc...)
+let currentUser = null;
 
 const SETORES_LABEL = {tecnologia:'💻 Tecnologia',gestao:'📊 Gestão',design:'🎨 Design',soft:'🗣️ Soft Skills / RH',financeiro:'💰 Financeiro',operacoes:'⚙️ Operações'};
 const SETOR_CSS    = {tecnologia:'setor-tec',gestao:'setor-gestao',design:'setor-design',soft:'setor-soft',financeiro:'setor-financeiro',operacoes:'setor-ops'};
@@ -603,13 +612,6 @@ let allCourses   = [];
 let allMembers   = [];
 let memberToDelete = null;
 
-
-// CONFIGURAÇÃO DO SUPABASE
-const SUPABASE_URL = "https://SEU_PROJETO.supabase.co";
-const SUPABASE_ANON_KEY = "SUA_CHAVE_ANON_PUBLICA";
-
-// Inicializa a conexão global com o banco de dados
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
 // ─── API helper ──────────────────────────────────────────────────────────────
 async function api(method, path, body) {
