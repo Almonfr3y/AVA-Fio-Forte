@@ -588,6 +588,8 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+ 
 <script>
 // =====================================================================
 //  AVA Fio Forte — Frontend com API REST
@@ -597,8 +599,7 @@
 const SUPABASE_URL = "https://eysmlykmqtntbegekdpq.supabase.co"; // Substitua com a sua URL real
 const SUPABASE_ANON_KEY = "eysmlykmqtntbegekdpq";       // Substitua com a sua chave real
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Só depois disso vêm as suas variáveis antigas (users, coursesData, etc...)
 let currentUser = null;
 
@@ -607,7 +608,7 @@ const SETOR_CSS    = {tecnologia:'setor-tec',gestao:'setor-gestao',design:'setor
 const CAT_LABEL    = {tecnologia:'Tecnologia',gestao:'Gestão',design:'Design',soft:'Soft Skills'};
 const CAT_TAG      = {tecnologia:'tag-tech',gestao:'tag-mgmt',design:'tag-design',soft:'tag-soft'};
 
-let currentUser  = null;
+
 let allCourses   = [];
 let allMembers   = [];
 let memberToDelete = null;
@@ -632,8 +633,8 @@ function switchAuthTab(tab) {
 }
 
 async function doLogin() {
-  const email = document.getElementById('log-email').value;
-  const pass = document.getElementById('log-pass').value;
+  const email = document.getElementById('login-email').value;
+  const pass = document.getElementById('login-pass').value;
   if(!email || !pass) return alert('Preencha os campos!');
 
   // 1. Faz login no Autenticador do Supabase
@@ -665,8 +666,8 @@ async function doLogin() {
   };
 
   // 4. Corre as suas funções nativas para atualizar o ecrã
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('dash-screen').style.display = 'block';
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
   
   // Atualiza os textos da interface com o nome do utilizador do banco
   document.getElementById('u-name').innerText = currentUser.name;
@@ -684,7 +685,7 @@ async function doRegister() {
   const role = document.getElementById('reg-role').value;
   const setor = document.getElementById('reg-setor').value;
   const email = document.getElementById('reg-email').value;
-  const pass = document.getElementById('reg-pass').value;
+  const pass = document.getElementById('reg-password').value;
 
   if(!name || !role || !email || !pass) return alert('Preencha todos os campos!');
 
