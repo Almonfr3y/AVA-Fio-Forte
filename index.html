@@ -782,8 +782,17 @@ function setupUserUI() {
 
 // ─── COURSES ──────────────────────────────────────────────────────────────────
 async function loadCourses() {
-  try { allCourses = await api('GET', '/courses'); }
-  catch(e) { console.error('Erro ao carregar cursos:', e); }
+  try {
+    const { data, error } = await supabaseClient
+      .from('cursos')
+      .select('*')
+      .order('criado_em', { ascending: false });
+
+    if (error) throw error;
+    allCourses = data || [];
+  } catch(e) {
+    console.error('Erro ao carregar cursos:', e);
+  }
 }
 
 function renderDashboard() {
@@ -874,23 +883,35 @@ function filterCourseTable(searchVal) {
 }
 
 async function createCourse() {
-  const name  = document.getElementById('nc-name').value.trim();
-  const cat   = document.getElementById('nc-cat').value;
+  const nome = document.getElementById('nc-name').value.trim();
+  const categoria = document.getElementById('nc-cat').value;
   const setor = document.getElementById('nc-setor').value;
-  document.getElementById('nc-error').classList.remove('show');
-  if (!name) { document.getElementById('nc-error-msg').textContent='Informe o título.'; document.getElementById('nc-error').classList.add('show'); return; }
-  try {
-    const catLabel = CAT_LABEL[cat] || cat;
-    const tag      = CAT_TAG[cat]   || 'tag-tech';
-    await api('POST', '/courses', { name, cat, cat_label: catLabel, tag, setor, aulas:0, horas:'0h', status:'ativo' });
-    await loadCourses();
-    renderCourseTable();
-    closeModal('add-course');
-    document.getElementById('nc-name').value = '';
-  } catch(err) {
-    document.getElementById('nc-error-msg').textContent = err.message;
+
+  // Validação
+  if (!nome) {
+    document.getElementById('nc-error-msg').textContent = 'Informe o título do curso.';
     document.getElementById('nc-error').classList.add('show');
+    return;
   }
+
+  const { data, error } = await supabaseClient
+    .from('cursos')
+    .insert([{ nome, categoria, setor, status: 'ativo' }])
+    .select()
+    .single();
+
+  if (error) {
+    document.getElementById('nc-error-msg').textContent = 'Erro ao criar curso: ' + error.message;
+    document.getElementById('nc-error').classList.add('show');
+    return;
+  }
+
+  // Adiciona na lista local e atualiza a tela
+  allCourses.push(data);
+  closeModal('add-course');
+  document.getElementById('nc-name').value = '';
+  document.getElementById('nc-error').classList.remove('show');
+  renderCourseTable();
 }
 
 async function deleteCourse(id) {
