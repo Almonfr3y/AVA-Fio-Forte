@@ -596,8 +596,8 @@
 // =====================================================================
  
 // 1. ISSO DEVE FICAR NO TOPO DO <SCRIPT>, ANTES DE TODAS AS OUTRAS FUNÇÕES
-const SUPABASE_URL = "https://eysmlykmqtntbegekdpq.supabase.co"; // Substitua com a sua URL real
-const SUPABASE_ANON_KEY = "eysmlykmqtntbegekdpq";       // Substitua com a sua chave real
+const SUPABASE_URL = "https://eysmlykmqtntbegekdpq.supabase.co/rest/v1/"; // Substitua com a sua URL real
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5c21seWttcXRudGJlZ2VrZHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwOTg3ODMsImV4cCI6MjA5NjY3NDc4M30.MSqH4lfoKYgn07DLbYGdBnCqoWPGwunAKwQTMFhuBjY";       // Substitua com a sua chave real
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Só depois disso vêm as suas variáveis antigas (users, coursesData, etc...)
@@ -634,7 +634,7 @@ function switchAuthTab(tab) {
 
 async function doLogin() {
   const email = document.getElementById('login-email').value;
-  const pass = document.getElementById('login-pass').value;
+  const pass = document.getElementById('login-password').value;
   if(!email || !pass) return alert('Preencha os campos!');
 
   // 1. Faz login no Autenticador do Supabase
@@ -722,7 +722,7 @@ async function doRegister() {
 }
 
 async function doLogout() {
-  await api('POST', '/auth/logout');
+  await supabaseClient.auth.signOut();
   currentUser = null; allCourses = []; allMembers = [];
   document.getElementById('app-screen').classList.remove('visible');
   document.getElementById('app-screen').style.display = 'none';
@@ -1099,12 +1099,16 @@ function resetQuiz(){curQ=0;score=0;selected=null;answered=false;renderQuiz()}
 
 // ─── INIT — verifica sessão ao carregar a página ───────────────────────────────
 (async function init() {
-  try {
-    currentUser = await api('GET', '/auth/me');
-    await enterApp();
-  } catch(_) {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
+      try {
+        await enterApp();
+      } catch(_) {
     // não autenticado — mostra tela de login normalmente
+      }
   }
+  
+
 })();
 </script>
 </body>
