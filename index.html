@@ -638,7 +638,7 @@ async function doLogin() {
   if(!email || !pass) return alert('Preencha os campos!');
 
   // 1. Faz login no Autenticador do Supabase
-  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+  const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
     email: email,
     password: pass
   });
@@ -690,7 +690,7 @@ async function doRegister() {
   if(!name || !role || !email || !pass) return alert('Preencha todos os campos!');
 
   // 1. Cria as credenciais no Supabase Auth
-  const { data: authData, error: authError } = await supabase.auth.signUp({
+  const { data: authData, error: authError } = await supabaseClient.auth.signUp({
     email: email,
     password: pass
   });
