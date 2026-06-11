@@ -646,7 +646,7 @@ async function doLogin() {
   if(authError) return alert('Falha no login: ' + authError.message);
 
   // 2. Procura os dados adicionais do utilizador (Nome, Setor, Cargo) na tabela 'perfis'
-  const { data: perfilData, error: perfilError } = await supabase
+  const { data: perfilData, error: perfilError } = await supabaseClient
     .from('perfis')
     .select('*')
     .eq('id', authData.user.id)
@@ -717,7 +717,7 @@ async function doRegister() {
     }
 
     alert('Registo efetuado com sucesso! Faça login.');
-    showLogin(); // Voltar para o ecrã de login
+    switchAuthTab('login'); // Voltar para o ecrã de login
   }
 }
 
