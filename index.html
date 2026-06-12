@@ -699,17 +699,15 @@ async function doRegister() {
 
   if(authData.user) {
     // 2. Insere os metadados do utilizador na tabela 'perfis' mapeando o ID
-    const { error: perfilError } = await supabaseClient
-      .from('perfis')
-      .insert([
-        {
-          id: authData.user.id,
-          nome_completo: name,
-          cargo: role,
-          setor: setor,
-          is_admin: false
-        }
-      ]);
+  const { error: perfilError } = await supabaseClient
+    .from('perfis')
+    .upsert([{
+      id: authData.user.id,
+      nome_completo: name,
+      cargo: role,
+      setor: setor,
+      is_admin: false
+    }], { onConflict: 'id' });
 
     if(perfilError) {
       console.error('Erro ao criar perfil:', perfilError);
